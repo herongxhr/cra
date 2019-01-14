@@ -8,19 +8,22 @@ const resolve = require('resolve');
 
 const PnpWebpackPlugin = require('pnp-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+//区分路径大小写
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
+//This plugin uses terser to minify your JavaScript
 const TerserPlugin = require('terser-webpack-plugin');
 //分离css
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 //优化css
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-
+//postcss
 const safePostCssParser = require('postcss-safe-parser');
-
+//生成manifest资产清单的webpack插件
 const ManifestPlugin = require('webpack-manifest-plugin');
 //配合html-webpack-plugin使用，可在index.html中使用变量，
 //并可配合使用html-webpack-plugin的默认模板语法
+//Interpolate插入
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 //构建离线应用
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
@@ -36,23 +39,32 @@ const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
+//源映射是资源密集型的，可能会导致大型源文件的内存不足问题
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
+//By default, Create React App will embed the runtime script into `index.html` during 
+//the production build. When set to `false`, the script will not be embedded and 
+//will be imported as usual. This is normally required when dealing with CSP.
+//webpack 的 runtime 和 manifest，管理所有模块的交互
+//runtime，以及伴随的 manifest 数据，主要是指：在浏览器运行时，
+//webpack 用来连接模块化的应用程序的所有代码。runtime 包含：
+//在模块交互时，连接模块所需的加载和解析逻辑。
+//包括浏览器中的已加载模块的连接，以及懒加载模块的执行逻辑。
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
-
 // style files regexes
 const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 //less正则
 const lessRegex = /\.less$/;
 const lessModuleRegex = /\.module\.less$/;
+//sass正则
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -83,6 +95,12 @@ module.exports = function (webpackEnv) {
     : isEnvDevelopment && '';
   // Get environment variables to inject into our app.
   // 获取需要 inject的 环境变量
+  //我以为如果是开发环境，publicUrl值为''，则函数返回的对象的属性中
+  // {
+  //   NODE_ENV: process.env.NODE_ENV || 'development'，此值这development
+  //   PUBLIC_URL: publicUrl,此值为''
+  //   REACT_APP_: 值为process.env[key]
+  // }
   const env = getClientEnvironment(publicUrl);
 
   // common function to get style loaders
@@ -135,9 +153,13 @@ module.exports = function (webpackEnv) {
 
   return {
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
+    
     //Stop compilation编译 early in production
     //bail:保释
+    //如果是生产环境
+    //在第一个错误出错时抛出，而不是无视错误。
     bail: isEnvProduction,
+    
     // 开发环境, 是使用 cheap-module-source-map
     // 生产, 基于 shouldUseSourceMap 判断是否使用 'source-map'
     // 备注: 我对 cheap-module-source-map 这种sourcemap不喜欢, 有不少bug。
@@ -175,6 +197,7 @@ module.exports = function (webpackEnv) {
       path: isEnvProduction ? paths.appBuild : undefined,
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
+      
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       // 设置生成文件的名称
@@ -186,9 +209,18 @@ module.exports = function (webpackEnv) {
       chunkFilename: isEnvProduction
         ? 'static/js/[name].[chunkhash:8].chunk.js'
         : isEnvDevelopment && 'static/js/[name].chunk.js',
-      // We inferred the "public path" (such as / or /my-project) from homepage.
+      
+      // We inferred推断 the "public path" (such as / or /my-project) from homepage.
       // We use "/" in development.
+      // publicPath: "/assets/", // string
+      // publicPath: "",
+      // publicPath: "https://cdn.example.com/",
+      // 输出解析文件的目录，url 相对于 HTML 页面
+      //publicPath 并不会对生成文件的路径造成影响，
+      //主要是对你的页面里面引入的资源的路径做对应的补全，
+      //常见的就是css文件里面引入的图片
       publicPath: publicPath,
+      
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
@@ -220,14 +252,14 @@ module.exports = function (webpackEnv) {
               // https://github.com/facebook/create-react-app/issues/2376
               // Pending further investigation:
               // https://github.com/mishoo/UglifyJS2/issues/2011
-              comparisons: false,
+              comparisons: false,//对比
               // Disabled because of an issue with Terser breaking valid code:
               // https://github.com/facebook/create-react-app/issues/5250
               // Pending futher investigation:
               // https://github.com/terser-js/terser/issues/120
               inline: 2,
             },
-            mangle: {
+            mangle: {//损坏
               safari10: true,
             },
             output: {
@@ -240,7 +272,7 @@ module.exports = function (webpackEnv) {
           },
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
-          parallel: true,
+          parallel: true,//并行的
           // Enable file caching
           cache: true,
           sourceMap: shouldUseSourceMap,
