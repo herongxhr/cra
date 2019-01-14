@@ -274,15 +274,15 @@ module.exports = function (webpackEnv) {
       runtimeChunk: true,
     },
     resolve: {
-      // This allows you to set a fallback for where Webpack should look for modules.
-      // We placed these paths second because we want `node_modules` to "win"
-      // if there are any conflicts. This matches Node resolution mechanism.
+      //webpack寻找modules的顺序
+      //先在node_modules里找，然后再到process.env.NODE_PATH中设置的路径数组中去找
+      //如果模块发生冲突，按node的冲突解决机制来解决。
       // https://github.com/facebook/create-react-app/issues/253
       modules: ['node_modules'].concat(
         // It is guaranteed to exist because we tweak it in `env.js`
         process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
       ),
-      // These are the reasonable defaults supported by the Node ecosystem.
+      // These are the reasonable合理的 defaults supported by the Node ecosystem生态系统.
       // We also include JSX as a common component filename extension to support
       // some tools, although we do not recommend using it, see:
       // https://github.com/facebook/create-react-app/issues/290
@@ -297,13 +297,13 @@ module.exports = function (webpackEnv) {
         'react-native': 'react-native-web',
       },
       plugins: [
-        // Adds support for installing with Plug'n'Play, leading to faster installs and adding
-        // guards against forgotten dependencies and such.
+        // Adds support for installing with Plug'n'Play即插即用, 引起leading to faster installs and adding
+        // guards against防范 forgotten dependencies and such.
         PnpWebpackPlugin,
         // Prevents users from importing files from outside of src/ (or node_modules/).
-        // This often causes confusion because we only process files within src/ with babel.
+        // This often causes confusion混乱 because we only process files within src/ with babel.
         // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
-        // please link the files into your node_modules/ and let module-resolution kick in.
+        // please link the files into your node_modules/ and let module-resolution kick in开始生效.
         // Make sure your source files are compiled, as they will not be processed in any way.
         new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
       ],
