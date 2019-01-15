@@ -153,13 +153,13 @@ module.exports = function (webpackEnv) {
 
   return {
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
-    
+
     //Stop compilation编译 early in production
     //bail:保释
     //如果是生产环境
     //在第一个错误出错时抛出，而不是无视错误。
     bail: isEnvProduction,
-    
+
     // 开发环境, 是使用 cheap-module-source-map
     // 生产, 基于 shouldUseSourceMap 判断是否使用 'source-map'
     // 备注: 我对 cheap-module-source-map 这种sourcemap不喜欢, 有不少bug。
@@ -197,7 +197,7 @@ module.exports = function (webpackEnv) {
       path: isEnvProduction ? paths.appBuild : undefined,
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
-      
+
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       // 设置生成文件的名称
@@ -209,7 +209,7 @@ module.exports = function (webpackEnv) {
       chunkFilename: isEnvProduction
         ? 'static/js/[name].[chunkhash:8].chunk.js'
         : isEnvDevelopment && 'static/js/[name].chunk.js',
-      
+
       // We inferred推断 the "public path" (such as / or /my-project) from homepage.
       // We use "/" in development.
       // publicPath: "/assets/", // string
@@ -220,7 +220,7 @@ module.exports = function (webpackEnv) {
       //主要是对你的页面里面引入的资源的路径做对应的补全，
       //常见的就是css文件里面引入的图片
       publicPath: publicPath,
-      
+
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
@@ -306,20 +306,28 @@ module.exports = function (webpackEnv) {
       runtimeChunk: true,
     },
     resolve: {
-      // This allows you to set a fallback for where Webpack should look for modules.
-      // We placed these paths second because we want `node_modules` to "win"
+      // 设置webpack解析模块的回退处理fallback回退
       // if there are any conflicts. This matches Node resolution mechanism.
       // https://github.com/facebook/create-react-app/issues/253
+      //webpack解析模块的顺序：
+      //先到node_modules文件夹中去找，
+      //没有再到process.env.NODE_PATH中设置的路径中去找
       modules: ['node_modules'].concat(
-        // It is guaranteed to exist because we tweak it in `env.js`
+        // It is guaranteed有保证的 to exist because we tweak it in `env.js`
         process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
       ),
-      // These are the reasonable defaults supported by the Node ecosystem.
+      // These are the reasonable合理的 defaults supported by the Node ecosystem生态系统.
       // We also include JSX as a common component filename extension to support
       // some tools, although we do not recommend using it, see:
       // https://github.com/facebook/create-react-app/issues/290
       // `web` extension prefixes have been added for better support
       // for React Native Web.
+      //自动解析确定的扩展。默认值为：extensions: [".js", ".json"]
+      //能够使用户在引入模块时不带扩展：
+      //import File from '../path/to/file'
+      //使用此选项，会覆盖默认数组，这就意味着 webpack 将不再尝试使用默认扩展来解析模块。
+      //对于使用其扩展导入的模块，例如，import SomeFile from "./somefile.ext"，
+      //要想正确的解析，一个包含“*”的字符串必须包含在数组中。
       extensions: paths.moduleFileExtensions
         .map(ext => `.${ext}`)
         .filter(ext => useTypeScript || !ext.includes('ts')),
@@ -328,15 +336,25 @@ module.exports = function (webpackEnv) {
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
         'react-native': 'react-native-web',
       },
+      //应该使用的额外的解析插件列表。它允许插件
       plugins: [
-        // Adds support for installing with Plug'n'Play, leading to faster installs and adding
-        // guards against forgotten dependencies and such.
+        // Adds support for installing with Plug'n'Play即插即用, 
+        // leading to faster installs and adding
+        // guards against防止 forgotten dependencies and such.
         PnpWebpackPlugin,
-        // Prevents users from importing files from outside of src/ (or node_modules/).
-        // This often causes confusion because we only process files within src/ with babel.
-        // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
+        // new ModuleScopePlugin(appSrc: string | string[], allowedFiles?: string[])
+        // 这个webpack插件让你只能从src目录或第一个参数数组中的其它目录中引入文件
+        // 而不能从其它目录引入
+        // 第二个参数是例外的文件
+        // 如果一个项目引用两个src文件夹(/src and /docs/src)。
+        // ModuleScopePlugin将不允许你从/docs/src中import文件，
+        // 而只能从src中引入文件，可按以下步骤解决这个问题
+        // In config/paths.js, add docsSrc: resolveApp('docs')
+        // In config/webpack.config.dev.js, modify 
+        // new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]), 
+        // to new ModuleScopePlugin([paths.appSrc, paths.docsSrc], [paths.appPackageJson]),
         new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
       ],
     },
@@ -348,6 +366,7 @@ module.exports = function (webpackEnv) {
       ],
     },
     module: {
+      //strictExportPresence呈现 makes missing exports an error instead of warning
       strictExportPresence: true,
       rules: [
         // Disable require.ensure as it's not a standard language feature.
@@ -356,6 +375,8 @@ module.exports = function (webpackEnv) {
         // First, run the linter.
         // It's important to do this before Babel processes the JS.
         {
+          // Rule.test 是 Rule.resource.test 的简写。
+          // 如果你提供了一个 Rule.test 选项，就不能再提供 Rule.resource
           test: /\.(js|mjs|jsx)$/,
           enforce: 'pre',
           use: [
@@ -383,6 +404,7 @@ module.exports = function (webpackEnv) {
               loader: require.resolve('url-loader'),
               options: {
                 limit: 10000,
+                //转换后的路径及文件名
                 name: 'static/media/[name].[hash:8].[ext]',
               },
             },
@@ -415,11 +437,12 @@ module.exports = function (webpackEnv) {
                 // directory for faster rebuilds.
                 cacheDirectory: true,
                 cacheCompression: isEnvProduction,
+                //compact紧凑
                 compact: isEnvProduction,
               },
             },
             // Process any JS outside of the app with Babel.
-            // Unlike the application JS, we only compile the standard ES features.
+            // Unlike the application JS, we only compile编译 the standard ES features.
             {
               test: /\.(js|mjs)$/,
               exclude: /@babel(?:\/|\\{1,2})runtime/,
@@ -544,6 +567,7 @@ module.exports = function (webpackEnv) {
               minify: {
                 removeComments: true,
                 collapseWhitespace: true,
+                //redundant多余的
                 removeRedundantAttributes: true,
                 useShortDoctype: true,
                 removeEmptyAttributes: true,
@@ -557,10 +581,11 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
-      // Inlines the webpack runtime script. This script is too small to warrant
+      // Inlines the webpack runtime script. This script is too small to warrant批准
       // a network request.
       isEnvProduction &&
       shouldInlineRuntimeChunk &&
+      // 正则表达式/[.]/方括号[]中的.就表示.,不需要转义。
       new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
       // Makes some environment variables available in index.html.
       // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
@@ -568,13 +593,14 @@ module.exports = function (webpackEnv) {
       // In production, it will be an empty string unless you specify "homepage"
       // in `package.json`, in which case it will be the pathname of that URL.
       // In development, this will be an empty string.
+      // interpolate插入
       new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
       // This gives some necessary context to module not found errors, such as
       // the requesting resource.
       new ModuleNotFoundPlugin(paths.appPath),
       // Makes some environment variables available to the JS code, for example:
       // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-      // It is absolutely essential that NODE_ENV is set to production
+      // It is absolutely essential必须的 that NODE_ENV is set to production
       // during a production build.
       // Otherwise React will be compiled in the very slow development mode.
       new webpack.DefinePlugin(env.stringified),
@@ -671,7 +697,7 @@ module.exports = function (webpackEnv) {
       tls: 'empty',
       child_process: 'empty',
     },
-    // Turn off performance processing because we utilize
+    // Turn off performance processing because we utilize运用
     // our own hints via the FileSizeReporter
     performance: false,
   };
