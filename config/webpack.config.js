@@ -322,14 +322,8 @@ module.exports = function (webpackEnv) {
       runtimeChunk: true,
     },
     resolve: {
-<<<<<<< HEAD
-      //webpack寻找modules的顺序
-      //先在node_modules里找，然后再到process.env.NODE_PATH中设置的路径数组中去找
-      //如果模块发生冲突，按node的冲突解决机制来解决。
-=======
       // 设置webpack解析模块的回退处理fallback回退
       // if there are any conflicts. This matches Node resolution mechanism.
->>>>>>> 5ffa322661a9e122e4ca9d8c7faad404c83b1eba
       // https://github.com/facebook/create-react-app/issues/253
       //webpack解析模块的顺序：
       //先到node_modules文件夹中去找，
@@ -360,21 +354,11 @@ module.exports = function (webpackEnv) {
       },
       //应该使用的额外的解析插件列表。它允许插件
       plugins: [
-<<<<<<< HEAD
-        // Adds support for installing with Plug'n'Play即插即用, 引起leading to faster installs and adding
-        // guards against防范 forgotten dependencies and such.
-        PnpWebpackPlugin,
-        // Prevents users from importing files from outside of src/ (or node_modules/).
-        // This often causes confusion混乱 because we only process files within src/ with babel.
-        // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
-        // please link the files into your node_modules/ and let module-resolution kick in开始生效.
-=======
         // Adds support for installing with Plug'n'Play即插即用, 
         // leading to faster installs and adding
         // guards against防止 forgotten dependencies and such.
         PnpWebpackPlugin,
         // please link the files into your node_modules/ and let module-resolution kick in.
->>>>>>> 5ffa322661a9e122e4ca9d8c7faad404c83b1eba
         // Make sure your source files are compiled, as they will not be processed in any way.
         // new ModuleScopePlugin(appSrc: string | string[], allowedFiles?: string[])
         // 这个webpack插件让你只能从src目录或第一个参数数组中的其它目录中引入文件
