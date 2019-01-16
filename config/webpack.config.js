@@ -3,7 +3,20 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-//解析模块
+// 解析模块，执行了node的require.resolve()算法，
+// 可以同步或异步地require.resolve()一个文件
+// 异步resolve
+// var resolve = require('resolve');
+// resolve('tap', { basedir: __dirname }, function (err, res) {
+//     if (err) console.error(err);
+//     else console.log(res);
+// });
+// 同步resolve
+// var resolve = require('resolve');
+// var res = resolve.sync('tap', { basedir: __dirname });
+// console.log(res);
+// 其中第二个参数是配置对象
+
 const resolve = require('resolve');
 
 const PnpWebpackPlugin = require('pnp-webpack-plugin');
@@ -231,10 +244,12 @@ module.exports = function (webpackEnv) {
         (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
     },
     optimization: {
-      //只在生产模式下有用，如何压缩代码
+      //让压缩代码器只在生产模式下生效
       minimize: isEnvProduction,
       minimizer: [
         // This is only used in production mode
+        // terser 简洁的，扼要的
+        // This plugin uses terser to minify your JavaScript
         new TerserPlugin({
           terserOptions: {
             parse: {
@@ -272,6 +287,7 @@ module.exports = function (webpackEnv) {
           },
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
+          // 能显著提高构建速度，强烈推荐
           parallel: true,//并行的
           // Enable file caching
           cache: true,
@@ -630,8 +646,8 @@ module.exports = function (webpackEnv) {
         fileName: 'asset-manifest.json',
         publicPath: publicPath,
       }),
-      // Moment.js is an extremely popular library that bundles large locale files
-      // by default due to how Webpack interprets its code. This is a practical
+      // Moment.js is an extremely popular library that bundles large locale语言区域 files
+      // by default due to由于 how Webpack interprets解释 its code. This is a practical实用的
       // solution that requires the user to opt into importing specific locales.
       // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
       // You can remove this if you don't use Moment.js:
@@ -641,15 +657,20 @@ module.exports = function (webpackEnv) {
       isEnvProduction &&
       new WorkboxWebpackPlugin.GenerateSW({
         //Optional Boolean, defaulting to false
-        //Whether or not the service worker should start controlling any existing clients as soon as it activates.
+        //service worker是否应该在激活任何现有客户端时立即开始控制该客户端。
         clientsClaim: true,
+        // 按指定的标准从预缓存清单中删除所匹配到的任何资产。
         exclude: [/\.map$/, /asset-manifest\.json$/],
-        //Optional String, defaulting to 'cdn'
-        //Valid values are 'cdn', 'local', and 'disabled.
-        //将为workbox运行时库使用一个URL
+        // Optional String, defaulting to 'cdn'
+        // Valid values are 'cdn', 'local', and 'disabled.
+        // workbox 运行时库的地址，默认是cdn，即来自google Cloud Storage
+        // 如importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
+        // local值将复制所有workbox运行时库
         importWorkboxFrom: 'cdn',
+        //这将用于创建一个响应没有被缓存的urls导航请求的NavigationRoute。
         navigateFallback: publicUrl + '/index.html',
         //Optional Array of RegExp, defaulting to []
+        //一个可选的正则表达式数组，用于限制配置的navigateFallback行为适用于哪些url
         navigateFallbackBlacklist: [
           // Exclude URLs starting with /_, as they're likely an API call
           new RegExp('^/_'),
