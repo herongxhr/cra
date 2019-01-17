@@ -12,16 +12,14 @@ const url = require('url');
 // 个人认为cmd中cd到哪里，这个值就是什么
 // __dirname 是被执行的js 文件的地址 ——文件所在目录
 // fs.realpathSync()Returns the resolved pathname.
-// 所以appDirectory这个值是app的根目录
+// 所以appDirectory这个值是app的根目录，但不包含末尾的/.
 const appDirectory = fs.realpathSync(process.cwd());
-
 //path.resolve():路径段拼接，如果路径之间没有/，会自动补上，
 //详见：https://nodejs.org/dist/latest-v10.x/docs/api/path.html
 //这个方法用来生成在配置文件中要用到的各种路径，参数是相当于根目录的路径
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
-
 const envPublicUrl = process.env.PUBLIC_URL;
-//slash斜线
+// slash斜线
 // 如果路径需要以/结尾的话
 // 如果inputPath有/，就直接返回
 // 如果inputPath没/，就加上
@@ -77,7 +75,6 @@ const moduleFileExtensions = [
   'web.jsx',
   'jsx',
 ];
-
 // Resolve file paths in the same order as webpack
 // 根据filePath文件路径来查找对应模块，按moduleFileExtensions
 // 数组中文件类型的顺序查找，find()找到后就停止查找
