@@ -27,6 +27,7 @@
     "file-loader": "2.0.0",
     "fork-ts-checker-webpack-plugin-alt": "0.4.14",
     "fs-extra": "7.0.0",
+    "global": "^4.3.2",
     "html-webpack-plugin": "4.0.0-alpha.2",
     "identity-obj-proxy": "3.0.0",
     "jest": "23.6.0",
@@ -45,6 +46,7 @@
     "react-dom": "^16.7.0",
     "resolve": "1.8.1",
     "sass-loader": "7.1.0",
+    "serve": "^10.1.1",
     "style-loader": "0.23.0",
     "terser-webpack-plugin": "1.1.0",
     "url-loader": "1.1.1",
@@ -55,6 +57,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
+    "start1": "serve -s build",
+    "start2": "http-server build",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },
@@ -112,5 +116,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1"
   }
 }

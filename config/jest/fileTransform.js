@@ -7,6 +7,12 @@ const path = require('path');
 
 module.exports = {
   process(src, filename) {
+    // path.basename(path[,ext])返回path的最后一部分
+    // path.basename('/foo/bar/baz/asdf/quux.html');
+    // 返回: 'quux.html'
+    // path.basename('/foo/bar/baz/asdf/quux.html', '.html');
+    // 返回: 'quux'
+    // 如果 path 或 ext 不是字符串，则抛出 TypeError。
     const assetFilename = JSON.stringify(path.basename(filename));
 
     if (filename.match(/\.svg$/)) {
