@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+
 // 解析模块，执行了node的require.resolve()算法，
 // 可以同步或异步地require.resolve()一个文件
 // 异步resolve
@@ -16,9 +17,7 @@ const webpack = require('webpack');
 // var res = resolve.sync('tap', { basedir: __dirname });
 // console.log(res);
 // 其中第二个参数是配置对象
-
 const resolve = require('resolve');
-
 const PnpWebpackPlugin = require('pnp-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 //区分路径大小写
